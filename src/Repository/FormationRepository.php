@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Formation;
+use App\Entity\Niveau;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Query\Expr\Join;
 
 /**
  * @method Formation|null find($id, $lockMode = null, $lockVersion = null)
@@ -45,7 +47,17 @@ class FormationRepository extends ServiceEntityRepository
                     ->orderBy('f.'.$champ, 'ASC')
                     ->getQuery()
                     ->getResult();
-        }else{
+        }elseif($champ == "niveau"){
+            
+            return $this->createQueryBuilder('f')
+                ->join('App\Entity\Niveau', 'n', 'WITH', 'n.id = f.niveau')
+                ->where('n.valeur LIKE :valeur')
+                ->setParameter('valeur', '%'.$valeur.'%')
+                ->orderBy('f.publishedAt', 'DESC')
+                ->getQuery()
+                ->getResult(); 
+        }
+        else{
             return $this->createQueryBuilder('f')
                     ->where('f.'.$champ.' LIKE :valeur')
                     ->setParameter('valeur', $valeur)
